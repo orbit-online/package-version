@@ -1,0 +1,41 @@
+{
+    "name": "@orbit-online/package-version-builder",
+    "bin": {
+        "package-version": "./bin/package-version.sh"
+    },
+    "version": "1.0.0",
+    "description": "CLI tool easily manage package versions in a semver manner.",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/orbit-online/package-version.git"
+    },
+    "keywords": [
+        "command-line",
+        "command line",
+        "cli",
+        "release",
+        "semver",
+        "tool"
+    ],
+    "author": {
+        "name": "Orbit Online A/S",
+        "email": "opensource@orbit.online",
+        "url": "https://github.com/orbit-online"
+    },
+    "contributors": [
+        {
+            "email": "briankchristensen@gmail.com",
+            "name": "Brian Kejlberg",
+            "url": "https://github.com/thetrompf"
+        }
+    ],
+    "bugs": {
+        "url": "https://github.com/orbit-online/package-version/issues"
+    },
+    "homepage": "https://github.com/orbit-online/package-version#readme",
+    "devDependencies": {
+        "@orbit-online/task-runner": "^1.0.1"
+    },
+    "private": true
+}
