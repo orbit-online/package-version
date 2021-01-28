@@ -1,0 +1,128 @@
+#!/bin/bash
+
+if [ -n "$_ORB_BASH_COMPLETION" ]; then
+    _exec_orb_bash_completion() {
+        local current_word="${COMP_WORDS[COMP_CWORD]}"
+
+        COMPREPLY=()
+        if [[ "$current_word" = --* ]]; then
+            # shellcheck disable=SC2207
+            COMPREPLY+=($(compgen -W '--dry-run --push --quiet --silent' -- "$current_word" ))
+            return 0
+        elif [[ "$current_word" = -* ]]; then
+            # shellcheck disable=SC2207
+            COMPREPLY+=($(compgen -W '-n -q -s' -- "$current_word" ))
+            return 0
+        fi
+
+        local commands=(major minor patch release) \
+              modifiers=(alpha beta rc) \
+              packages=() \
+              previous_words=("${COMP_WORDS[@]:2}")
+
+        in_commands() {
+            local cmd
+            for cmd in "${commands[@]}"; do
+                [[ "$cmd" == "$1" ]] && return 0
+            done || return 1
+        }
+
+        in_modifiers() {
+            local mod
+            for mod in "${modifiers[@]}"; do
+                [[ "$mod" == "$1" ]] && return 0
+            done || return 1
+        }
+
+        in_packages() {
+            local pkg
+            for pkg in "${packages[@]}"; do
+                [[ "$pkg" == "$1" ]] && return 0
+            done || return 1
+        }
+
+        in_previous() {
+            local word
+            for word in "${previous_words[@]}"; do
+                [[ "$word" == "$1" ]] && return 0
+            done || return 1
+        }
+
+        command_in_previous() {
+            local prev
+            for prev in "${previous_words[@]}"; do
+                in_commands "$prev" && return 0
+            done || return 1
+        }
+
+        modifier_in_previous() {
+            local prev
+            for prev in "${previous_words[@]}"; do
+                in_modifiers "$prev" && return 0
+            done || return 1
+        }
+
+        pacakge_in_previous() {
+            local prev
+            for prev in "${previous_words[@]}"; do
+                in_packages "$prev" && return 0
+            done || return 1
+        }
+
+        local search_paths=()
+        resolve_search_paths() {
+            if [ -n "$PACKAGE_VERSION_PATH" ]; then
+                read_pkg_version_paths
+            else
+                search_paths+=( "$PROJECT_PATH" )
+                [ -d "$PROJECT_PATH/package" ] && search_paths+=( "$PROJECT_PATH/package" )
+                [ -d "$PROJECT_PATH/packages" ] && search_paths+=( "$PROJECT_PATH/packages" )
+            fi
+            return 0
+        }
+
+        read_pkg_version_paths() {
+            local path
+            while IFS= read -r path; do
+                [ -z "$path" ] || [ ! -e "$path" ] && continue
+                search_paths+=( "$path" )
+            done <<< "$(echo -e "${PACKAGE_VERSION_PATH//:/"\n"}")"
+            return 0
+        }
+
+        find_packages() {
+            resolve_search_paths
+            local path search_path
+            for search_path in "${search_paths[@]}"; do
+                if [ -f "$search_path" ] && [[ "$(basename "$search_path")" == 'VERSION' ]]; then
+                    packages+=( "$(basename "$(dirname "$search_path")")" )
+                elif [ -d "$search_path" ]; then
+                    if [ -f "$search_path/VERSION" ]; then
+                        packages+=( "$(basename "$search_path")" )
+                    fi
+                    for path in "$search_path"/*/VERSION; do
+                        packages+=( "$(basename "$(dirname "$path")")" )
+                    done
+                fi
+            done
+        }
+
+        find_packages
+        if pacakge_in_previous; then
+            return 0
+        elif in_previous release || modifier_in_previous; then
+            # shellcheck disable=SC2207
+            COMPREPLY+=($(compgen -W "${packages[*]}" "$current_word"))
+        elif ! command_in_previous; then
+            local choices=( "${commands[*]}" "${modifiers[*]}" "${packages[*]}" )
+            # shellcheck disable=SC2207
+            COMPREPLY+=($(compgen -W "${choices[*]}" "$current_word"))
+        else
+            local choices=( "${modifiers[*]}" "${packages[*]}" )
+            # shellcheck disable=SC2207
+            COMPREPLY+=($(compgen -W "${choices[*]}" "$current_word"))
+        fi
+
+        return 0
+    }
+fi
