@@ -18,7 +18,7 @@ build-package-version() {
     mkdir -p "$PROJECT_PATH/packages/$package_name/bin"
     jq "$jq_filter" < package.json > "$PROJECT_PATH/packages/$package_name/package.json"
 
-    cp "$PROJECT_PATH/bin/package-version.sh" "$PROJECT_PATH/packages/$package_name/bin/"
+    cp "$PROJECT_PATH/bin/package-version."* "$PROJECT_PATH/packages/$package_name/bin/"
     cp "$PROJECT_PATH/LICENSE" "$PROJECT_PATH/packages/$package_name/"
 }
 
