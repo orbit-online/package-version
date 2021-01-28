@@ -30,36 +30,43 @@ package-version() {
     DOC="Utility to guide semver versioning of software packages.
 
 Usage:
-  package-version (major|minor|patch) [alpha|beta|rc] [PACKAGE]
-  package-version (alpha|beta|rc) [PACKAGE]
-  package-version release [PACKAGE]
-  package-version [PACKAGE]
+  package-version [options] (major|minor|patch) [alpha|beta|rc] [PACKAGE]
+  package-version [options] (alpha|beta|rc) [PACKAGE]
+  package-version [options] release [PACKAGE]
+  package-version [options] [PACKAGE]
+
+Options:
+  -q --quiet    Don't report anything but errors
+                and remove the package name prefix when displaying the current version.
+  -s --silent   Total silence, rely solely on exit code
+  -n --dry-run  Displaying what would happen without doing any actual changes,
+                bypassing dirty checks as well.
 
 Commands:
-  major     Bump the package to the next major version.
-  minor     Bump the package to the next minor version.
-  patch     Bump the package to the next patch version.
-  alpha     Bump the package to the next alpha pre-release version,
-            if the pacakge is not currently in pre-release an error is returned.
-  beta      Bump the package to the next beta pre-release version,
-            if the pacakge is not currently in pre-release an error is returned.
-  rc        Bump the package to the next rc pre-release version,
-            if the pacakge is not currently in pre-release an error is returned.
-  release   Release the non-pre-release version of the pacakge,
-            if the package is not currently in pre-release an error is returned.
+  major         Bump the package to the next major version.
+  minor         Bump the package to the next minor version.
+  patch         Bump the package to the next patch version.
+  alpha         Bump the package to the next alpha pre-release version,
+                if the pacakge is not currently in pre-release an error is returned.
+  beta          Bump the package to the next beta pre-release version,
+                if the pacakge is not currently in pre-release an error is returned.
+  rc            Bump the package to the next rc pre-release version,
+                if the pacakge is not currently in pre-release an error is returned.
+  release       Release the non-pre-release version of the pacakge,
+                if the package is not currently in pre-release an error is returned.
 
 Modifiers:
-  alpha     Add alpha pre-release suffix to the version bump
-  beta      Add beta pre-release suffix to the version bump
-  rc        Add rc pre-release suffix to the version bump
+  alpha         Add alpha pre-release suffix to the version bump
+  beta          Add beta pre-release suffix to the version bump
+  rc            Add rc pre-release suffix to the version bump
 
 Packages:
-  <NONE>    Assumes the package to manimulate / query version for
-            lives in the root of PROJECT_PATH or PROJECT_PATH/package.
-  PACKAGE   When PACKAGE is provided the name corresponds to a directory name,
-            with a VERSION file that lives within.
-            Per default packages are searched for in PROJECT_PATH/packages,
-            this behavior can be modified by providing the PACKAGE_VERSION_PATH environment variable.
+  <NONE>        Assumes the package to manimulate / query version for
+                lives in the root of PROJECT_PATH or PROJECT_PATH/package.
+  PACKAGE       When PACKAGE is provided the name corresponds to a directory name,
+                with a VERSION file that lives within.
+                Per default packages are searched for in PROJECT_PATH/packages,
+                this behavior can be modified by providing the PACKAGE_VERSION_PATH environment variable.
 
 Examples:
   Bump package from alpha to beta version.
@@ -157,6 +164,11 @@ if [[ ${parsed_values[$l]} != "$name" ]]; then return 1; fi
 left=("${left[@]:0:$i}" "${left[@]:((i+1))}")
 [[ $testdepth -gt 0 ]] && return 0; if [[ $3 = true ]]; then
 eval "((var_$1++)) || true"; else eval "var_$1=true"; fi; return 0; fi; done
+return 1; }; switch() { local i; for i in "${!left[@]}"; do local l=${left[$i]}
+if [[ ${parsed_params[$l]} = "$2" ]]; then
+left=("${left[@]:0:$i}" "${left[@]:((i+1))}")
+[[ $testdepth -gt 0 ]] && return 0; if [[ $3 = true ]]; then
+eval "((var_$1++))" || true; else eval "var_$1=true"; fi; return 0; fi; done
 return 1; }; value() { local i; for i in "${!left[@]}"; do local l=${left[$i]}
 if [[ ${parsed_params[$l]} = "$2" ]]; then
 left=("${left[@]:0:$i}" "${left[@]:((i+1))}")
@@ -166,21 +178,29 @@ eval "var_$1+=($value)"; else eval "var_$1=$value"; fi; return 0; fi; done
 return 1; }; stdout() { printf -- "cat <<'EOM'\n%s\nEOM\n" "$1"; }; stderr() {
 printf -- "cat <<'EOM' >&2\n%s\nEOM\n" "$1"; }; error() {
 [[ -n $1 ]] && stderr "$1"; stderr "$usage"; _return 1; }; _return() {
-printf -- "exit %d\n" "$1"; exit "$1"; }; set -e; trimmed_doc=${DOC:0:2165}
-usage=${DOC:58:178}; digest=2b899; shorts=(); longs=(); argcounts=(); node_0(){
-value PACKAGE a; }; node_1(){ _command major; }; node_2(){ _command minor; }
-node_3(){ _command patch; }; node_4(){ _command alpha; }; node_5(){
-_command beta; }; node_6(){ _command rc; }; node_7(){ _command release; }
-node_8(){ either 1 2 3; }; node_9(){ required 8; }; node_10(){ either 4 5 6; }
-node_11(){ optional 10; }; node_12(){ optional 0; }; node_13(){ required 9 11 12
-}; node_14(){ required 10; }; node_15(){ required 14 12; }; node_16(){
-required 7 12; }; node_17(){ required 12; }; node_18(){ either 13 15 16 17; }
-node_19(){ required 18; }; cat <<<' docopt_exit() {
-[[ -n $1 ]] && printf "%s\n" "$1" >&2; printf "%s\n" "${DOC:58:178}" >&2; exit 1
-}'; unset var_PACKAGE var_major var_minor var_patch var_alpha var_beta var_rc \
-var_release; parse 19 "$@"; local prefix=${DOCOPT_PREFIX:-''}
-unset "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" "${prefix}patch" \
+printf -- "exit %d\n" "$1"; exit "$1"; }; set -e; trimmed_doc=${DOC:0:2615}
+usage=${DOC:58:218}; digest=3e85c; shorts=(-s -q -n)
+longs=(--silent --quiet --dry-run); argcounts=(0 0 0); node_0(){
+switch __silent 0; }; node_1(){ switch __quiet 1; }; node_2(){
+switch __dry_run 2; }; node_3(){ value PACKAGE a; }; node_4(){ _command major; }
+node_5(){ _command minor; }; node_6(){ _command patch; }; node_7(){
+_command alpha; }; node_8(){ _command beta; }; node_9(){ _command rc; }
+node_10(){ _command release; }; node_11(){ optional 0 1 2; }; node_12(){
+optional 11; }; node_13(){ either 4 5 6; }; node_14(){ required 13; }
+node_15(){ either 7 8 9; }; node_16(){ optional 15; }; node_17(){ optional 3; }
+node_18(){ required 12 14 16 17; }; node_19(){ required 15; }; node_20(){
+required 12 19 17; }; node_21(){ required 12 10 17; }; node_22(){ required 12 17
+}; node_23(){ either 18 20 21 22; }; node_24(){ required 23; }
+cat <<<' docopt_exit() { [[ -n $1 ]] && printf "%s\n" "$1" >&2
+printf "%s\n" "${DOC:58:218}" >&2; exit 1; }'; unset var___silent var___quiet \
+var___dry_run var_PACKAGE var_major var_minor var_patch var_alpha var_beta \
+var_rc var_release; parse 24 "$@"; local prefix=${DOCOPT_PREFIX:-''}
+unset "${prefix}__silent" "${prefix}__quiet" "${prefix}__dry_run" \
+"${prefix}PACKAGE" "${prefix}major" "${prefix}minor" "${prefix}patch" \
 "${prefix}alpha" "${prefix}beta" "${prefix}rc" "${prefix}release"
+eval "${prefix}"'__silent=${var___silent:-false}'
+eval "${prefix}"'__quiet=${var___quiet:-false}'
+eval "${prefix}"'__dry_run=${var___dry_run:-false}'
 eval "${prefix}"'PACKAGE=${var_PACKAGE:-}'
 eval "${prefix}"'major=${var_major:-false}'
 eval "${prefix}"'minor=${var_minor:-false}'
@@ -189,14 +209,19 @@ eval "${prefix}"'alpha=${var_alpha:-false}'
 eval "${prefix}"'beta=${var_beta:-false}'; eval "${prefix}"'rc=${var_rc:-false}'
 eval "${prefix}"'release=${var_release:-false}'; local docopt_i=1
 [[ $BASH_VERSION =~ ^4.3 ]] && docopt_i=2; for ((;docopt_i>0;docopt_i--)); do
-declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
-"${prefix}patch" "${prefix}alpha" "${prefix}beta" "${prefix}rc" \
-"${prefix}release"; done; }
+declare -p "${prefix}__silent" "${prefix}__quiet" "${prefix}__dry_run" \
+"${prefix}PACKAGE" "${prefix}major" "${prefix}minor" "${prefix}patch" \
+"${prefix}alpha" "${prefix}beta" "${prefix}rc" "${prefix}release"; done; }
 # docopt parser above, complete command for generating this parser is `docopt.sh package-version.sh`
 
     eval "$(docopt "$@")"
 
-    local package_name search_path search_paths=() version_path
+    # shellcheck disable=SC2154
+    if $__dry_run; then
+        printf -- 'WARNING: RUNNING IN DRY-RUN MODE, NO CHANGES WILL BE MADE\n' >&2
+    fi
+
+    local search_paths=()
 
     resolve_search_paths() {
         if [ -n "$PACKAGE_VERSION_PATH" ]; then
@@ -214,7 +239,8 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         while IFS= read -r path; do
             [ -z "$path" ] && continue
             if [ ! -e "$path" ]; then
-                printf -- 'Invalid search path defined in PACKAGE_VERSION_PATH environment variable.\n- %s\n' "$path" >&2
+                # shellcheck disable=SC2154
+                ! $__silent && printf -- 'Invalid search path defined in PACKAGE_VERSION_PATH environment variable.\n- %s\n' "$path" >&2
                 return 1
             fi
             search_paths+=( "$path" )
@@ -222,16 +248,17 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         return 0
     }
 
+    local version_path
     set_version_file() {
         local path=$1
         if [ -f "$path" ]; then
             if [[ "$(basename "$path")" != 'VERSION' ]]; then
-                printf -- 'Version files must be called VERSION, got\n- %s\n' "$path" >&2
+                ! $__silent && printf -- 'Version files must be called VERSION, got\n- %s\n' "$path" >&2
                 return 1
             fi
             version_path="$path"
         else
-            printf -- 'No VERSION file was found in the directory
+            ! $__silent && printf -- 'No VERSION file was found in the directory
 - %s
 ' "$path" >&2
             return 1
@@ -240,6 +267,7 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
 
     resolve_search_paths
 
+    local package_name search_path
     if [ -n "$PACKAGE" ]; then
         for search_path in "${search_paths[@]}"; do
             if [ -f "$search_path" ]; then
@@ -280,11 +308,11 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
 
     if [ -z "$version_path" ]; then
         if [ -n "$package_name" ]; then
-            printf -- 'No VERSION file found for package "%s", searched in\n' "$package_name" >&2
+            ! $__silent && printf -- 'No VERSION file found for package "%s", searched in\n' "$package_name" >&2
         else
-            printf -- 'No VERSION file found, searched in\n' >&2
+            ! $__silent && printf -- 'No VERSION file found, searched in\n' >&2
         fi
-        printf -- '%s\n' "${search_paths[@]}" >&2
+        ! $__silent && printf -- '%s\n' "${search_paths[@]}" >&2
         return 1
     fi
 
@@ -298,24 +326,22 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         new_pre_release_name='rc'
     fi
 
-    local current_major current_minor current_patch current_pre_release current_version new_version \
-          current_pre_release_name current_pre_release_version \
-          git_commit_msg git_release_tag
-
-    if [[ -n $(git diff -- "$version_path") ]]; then
-        printf -- 'The VERSION file of the %s package has uncomitted changes,\nplease commit them or reset the changes and try again.\n' "$package_name" >&2
+    if ! $__dry_run && [[ -n $(git diff -- "$version_path") ]]; then
+        ! $__silent && printf -- 'The VERSION file of the %s package has uncomitted changes,\nplease commit them or reset the changes and try again.\n' "$package_name" >&2
         return 1
     fi
-    if [[ -n $(git diff --staged) ]]; then
-        printf -- 'There are staged changes in the git working copy, please unstage the changes and try again.\n' >&2
+    if ! $__dry_run && [[ -n $(git diff --staged) ]]; then
+        ! $__silent && printf -- 'There are staged changes in the git working copy, please unstage the changes and try again.\n' >&2
         return 1
     fi
 
+    local current_major current_minor current_patch current_pre_release
     current_major=$(grep -oP '^\K(\d+)' < "$version_path")
     current_minor=$(grep -oP '^\d+\.\K(\d+)' < "$version_path")
     current_patch=$(grep -oP '^\d+\.\d+\.\K(\d+)' < "$version_path")
     current_pre_release=$(grep -oP '^\d+\.\d+\.\d+-\K(.+)' < "$version_path" 2>/dev/null || printf -- '')
 
+    local current_version current_pre_release_name current_pre_release_version
     if [[ -n "$current_pre_release" ]]; then
         read -r current_version <<< "$(printf -- '%d.%d.%d-%s' "$current_major" "$current_minor" " $current_patch" "$current_pre_release" )"
         current_pre_release_name=$(grep -oP '^\d+\.\d+\.\d+-\K(alpha|beta|rc)' < "$version_path" 2>/dev/null || printf -- '')
@@ -324,7 +350,7 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         read -r current_version <<< "$(printf -- '%d.%d.%d' "$current_major" "$current_minor" " $current_patch")"
         # shellcheck disable=SC2154
         if $release; then
-            printf -- 'The package must currently be a pre-release in order to use the pre-release command.\n%s is currently in %s which is not a pre-release.\n' "$package_name" "$current_version" >&2
+            ! $__silent && printf -- 'The package must currently be a pre-release in order to use the pre-release command.\n%s is currently in %s which is not a pre-release.\n' "$package_name" "$current_version" >&2
             return 1
         fi
     fi
@@ -348,11 +374,12 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
     elif [ -z "$new_pre_release_name" ] && ! $release; then
         # No command subcommand or modifier was specified
         # Usage: package-version [PACKAGE]
-        printf -- '%s: ' "$package_name" >&2
+        ! $__silent && ! $__quiet && printf -- '%s: ' "$package_name" >&2
         printf -- '%s\n' "$current_version"
         return 0
     fi
 
+    local new_version
     if [[ -n "$new_pre_release_name" ]]; then
         if [[ "$new_pre_release_name" == "$current_pre_release_name" ]]; then
             current_pre_release_version=$((current_pre_release_version + 1))
@@ -361,9 +388,9 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
             current_pre_release_version="1"
         else
             if [[ -z "$current_pre_release_name" ]]; then
-                printf -- 'Cannot bump %s pre-release from a non-pre-release without bumping version number as well.\ne.g. by running:\n$ package-version minor alpha %s\n' "$new_pre_release_name" "$PACKAGE" >&2
+                ! $__silent && printf -- 'Cannot bump %s pre-release from a non-pre-release without bumping version number as well.\ne.g. by running:\n$ package-version minor alpha %s\n' "$new_pre_release_name" "$PACKAGE" >&2
             else
-                printf -- 'Cannot bump pre-release from %s to %s\nOnly bumping to same or higher version suffix order is allowed.\n' "$current_pre_release_name" "$new_pre_release_name" >&2
+                ! $__silent && printf -- 'Cannot bump pre-release from %s to %s\nOnly bumping to same or higher version suffix order is allowed.\n' "$current_pre_release_name" "$new_pre_release_name" >&2
             fi
             return 1
         fi
@@ -372,6 +399,7 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         read -r new_version <<< "$(printf -- '%d.%d.%d' "$current_major" "$current_minor" " $current_patch")"
     fi
 
+    local git_commit_msg git_release_tag
     if [ -n "$PACKAGE" ]; then
         git_commit_msg="Release: ${PACKAGE} v${new_version}"
         git_release_tag="v${new_version}-${PACKAGE}"
@@ -380,13 +408,15 @@ declare -p "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
         git_release_tag="v${new_version}"
     fi
 
-    printf -- '%s\n' "$new_version" > "$version_path"
+    if ! $__dry_run; then
+        printf -- '%s\n' "$new_version" > "$version_path"
+        git add -- "$version_path" > /dev/null
+        git commit -m "$git_commit_msg" > /dev/null
+        git tag "$git_release_tag" > /dev/null
+    fi
 
-    git add -- "$version_path" > /dev/null
-    git commit -m "$git_commit_msg" > /dev/null
-    git tag "$git_release_tag" > /dev/null
-
-    printf -- 'Bumped the version of %s from %s -> %s\nWrote the changes back to the VERSION file, committed the changes with the message:\n\n%s\n\ntagged the commit with:\n\n%s\n\nDon'\''t forget to push both the branch and the tag e.g. by running:\n\n$ git push && git push --tags\n' "$package_name" "$current_version" "$new_version" "$git_commit_msg" "$git_release_tag"
+    ! $__silent && ! $__quiet && printf -- 'Bumped the version of %s from %s -> %sWrote the changes back to the VERSION file, committed the changes with the message:\n\n%s\n\ntagged the commit with:\n\n%s\n\nDon'\''t forget to push both the branch and the tag e.g. by running:\n\n$ git push && git push --tags\n' "$package_name" "$current_version" "$new_version" "$git_commit_msg" "$git_release_tag"
+    ! $__silent && $__quiet && printf -- '%s\n' "$new_version"
 }
 
 package-version "$@"
