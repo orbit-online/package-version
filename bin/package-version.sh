@@ -426,7 +426,7 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
         git tag "$git_release_tag" > /dev/null
     fi
 
-    ! $__silent && ! $__quiet && printf -- 'Bumped the version of %s from %s -> %s\nWrote the changes back to the VERSION file, committed the changes in git.\n\nMSG: %s\nTAG: %s\n' "$package_name" "$current_version" "$new_version" "$git_commit_msg" "$git_release_tag"
+    ! $__silent && ! $__quiet && printf -- 'Bumped the version of %s from %s -> %s\nWrote the changes back to the VERSION file and committed the changes in git.\n\nMSG: %s\nTAG: %s\n' "$package_name" "$current_version" "$new_version" "$git_commit_msg" "$git_release_tag"
 
     # shellcheck disable=SC2154
     if $__push; then

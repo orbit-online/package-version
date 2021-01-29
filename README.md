@@ -43,6 +43,67 @@ Alternatively you could install a task runner like [@orbit-online/create-task-ru
 
 ## Usage
 
+<details>
+<summary>Command line help text. `$ package-version --help`</summary>
+
+```
+Utility to guide semver versioning of software packages.
+
+Usage:
+  package-version [options] (major|minor|patch) [alpha|beta|rc] [PACKAGE]
+  package-version [options] (alpha|beta|rc) [PACKAGE]
+  package-version [options] release [PACKAGE]
+  package-version [options] [PACKAGE]
+
+Options:
+  --push          Push changes after commit and tagging.
+  -n --dry-run    Displaying what would happen without doing any actual changes,
+                  bypassing dirty checks as well.
+  -q --quiet      Don't report anything but errors
+                  and remove the package name prefix when displaying the current version.
+  -s --silent     Total silence, rely solely on exit code
+
+Commands:
+  major           Bump the package to the next major version.
+  minor           Bump the package to the next minor version.
+  patch           Bump the package to the next patch version.
+  alpha           Bump the package to the next alpha pre-release version,
+                  if the pacakge is not currently in pre-release an error is returned.
+  beta            Bump the package to the next beta pre-release version,
+                  if the pacakge is not currently in pre-release an error is returned.
+  rc              Bump the package to the next rc pre-release version,
+                  if the pacakge is not currently in pre-release an error is returned.
+  release         Release the non-pre-release version of the pacakge,
+                  if the package is not currently in pre-release an error is returned.
+
+Modifiers:
+  alpha           Add alpha pre-release suffix to the version bump
+  beta            Add beta pre-release suffix to the version bump
+  rc              Add rc pre-release suffix to the version bump
+
+Packages:
+  <NONE>          Assumes the package to manimulate / query version for
+                  lives in the root of PROJECT_PATH or PROJECT_PATH/package.
+  PACKAGE         When PACKAGE is provided the name corresponds to a directory name,
+                  with a VERSION file that lives within.
+                  Per default packages are searched for in PROJECT_PATH/packages,
+                  this behavior can be modified by providing the PACKAGE_VERSION_PATH environment variable.
+
+Examples:
+  Bump package from alpha to beta version.
+    $ package-version beta                         (e.g. 1.2.5-alpha.4 -> 1.2.5-beta.1)
+
+  Bump rc of a package already in rc pre-release.
+    $ package-version rc                           (e.g. 1.2.6-rc.2 -> 1.2.6-rc.3)
+
+  Bump minor version as an alpha pre-release.
+    $ package-version minor alpha                  (e.g. 1.2.7 -> 1.3.0-alpha.1)
+
+  Bump major version of the package.
+    $ package-version major                        (e.g. 1.2.8 -> 2.0.0)
+```
+</details>
+
 ### Get current version of root package
 
 Retrieving current version of the project (reading from the VERSION file of the package).
@@ -135,13 +196,10 @@ Via NPM
 ```shell
 $ npm run package-version patch
 Bumped the version of my-project from 1.2.3 -> 1.2.4
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v1.2.4
-
-tagged the commit with:
-
-v1.2.4
+MSG: Release: v1.2.4
+TAG: v1.2.4
 
 Don't forget to push both the branch and the tag e.g. by running:
 
@@ -154,13 +212,10 @@ $ git push && git push --tags
 ```shell
 $ yarn package-version patch
 Bumped the version of my-project from 1.2.3 -> 1.2.4
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v1.2.4
-
-tagged the commit with:
-
-v1.2.4
+MSG: Release: v1.2.4
+TAG: v1.2.4
 
 Don't forget to push both the branch and the tag e.g. by running:
 
@@ -182,13 +237,10 @@ Via NPM
 ```shell
 $ npm run package-version minor
 Bumped the version of my-project from 1.2.3 -> 1.3.0
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v1.3.0
-
-tagged the commit with:
-
-v1.3.0
+MSG: Release: v1.3.0
+TAG: v1.3.0
 
 Don't forget to push both the branch and the tag e.g. by running:
 
@@ -201,13 +253,10 @@ $ git push && git push --tags
 ```shell
 $ yarn package-version minor
 Bumped the version of my-project from 1.2.3 -> 1.3.0
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v1.3.0
-
-tagged the commit with:
-
-v1.3.0
+MSG: Release: v1.3.0
+TAG: v1.3.0
 
 Don't forget to push both the branch and the tag e.g. by running:
 
@@ -229,13 +278,10 @@ Via NPM
 ```shell
 $ npm run package-version major
 Bumped the version of my-project from 1.2.3 -> 2.0.0
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v2.0.0
-
-tagged the commit with:
-
-v2.0.0
+MSG: Release: v2.0.0
+TAG: v2.0.0
 
 Don't forget to push both the branch and the tag e.g. by running:
 
@@ -248,13 +294,10 @@ $ git push && git push --tags
 ```shell
 $ yarn package-version major
 Bumped the version of my-project from 1.2.3 -> 2.0.0
-Wrote the changes back to the VERSION file, committed the changes with the message:
+Wrote the changes back to the VERSION file and committed the changes in git.
 
-Release: v2.0.0
-
-tagged the commit with:
-
-v2.0.0
+MSG: Release: v2.0.0
+TAG: v2.0.0
 
 Don't forget to push both the branch and the tag e.g. by running:
 
