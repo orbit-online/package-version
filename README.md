@@ -1,5 +1,5 @@
 # Package version CLI tool
-> _Light weight tool written in bash for manage package versions in a semver manner._
+> _Light weight tool written in bash for managing package versions in a semver manner._
 
 ## Installation
 
