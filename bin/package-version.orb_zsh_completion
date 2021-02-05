@@ -43,7 +43,7 @@ if [ -n "$_ORB_ZSH_COMPLETION" ]; then
                     fi
                     for file_path in "$search_path"/*/VERSION; do
                         file_path="$(dirname "$file_path")"
-                        pkg_arg=$(basename "$(dirname "$file_path")")
+                        pkg_arg="$(basename "$file_path")"
                         packages+=( "${pkg_arg}[${file_path#$PWD/}]" )
                     done
                 fi
@@ -72,7 +72,7 @@ if [ -n "$_ORB_ZSH_COMPLETION" ]; then
                 return 1
             fi
 
-            _values 'package' "${packages[*]}"
+            _values 'package' "${packages[@]}"
             return 0
         }
 
