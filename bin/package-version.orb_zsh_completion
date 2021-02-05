@@ -1,0 +1,135 @@
+#!/bin/bash
+
+if [ -n "$_ORB_ZSH_COMPLETION" ]; then
+    _exec_orb_zsh_completion() {
+        local curcontext='$curcontext' state line cmds ret=1
+        integer NORMARGS
+        typeset -A opt_args
+        local -a global_args packages=() search_paths=()
+
+        global_args=('--push' '--dry-run' '--quiet' '--silent')
+
+        __orb_package_version_read_pkg_paths() {
+            local path
+            while IFS= read -r path; do
+                [ -z "$path" ] || [ ! -e "$path" ] && continue
+                search_paths+=( "$path" )
+            done <<< "$(echo -e "${PACKAGE_VERSION_PATH//:/"\n"}")"
+            return 0
+        }
+
+        __orb_package_version_resolve_search_paths() {
+            if [ -n "$PACKAGE_VERSION_PATH" ]; then
+                __orb_package_version_read_pkg_paths
+            else
+                search_paths+=( "$PROJECT_PATH" )
+                [ -d "$PROJECT_PATH/package" ] && search_paths+=( "$PROJECT_PATH/package" )
+                [ -d "$PROJECT_PATH/packages" ] && search_paths+=( "$PROJECT_PATH/packages" )
+            fi
+            return 0
+        }
+
+        __orb_package_version_find_packages() {
+            __orb_package_version_resolve_search_paths
+            local file_path search_path pkg_arg
+            for search_path in "${search_paths[@]}"; do
+                if [ -f "$search_path" ] && [[ $(basename "$search_path") == 'VERSION' ]]; then
+                    pkg_arg=$(basename "$(dirname "$search_path")")
+                    packages+=( "${pkg_arg}[${search_path#$PWD/}]" )
+                elif [ -d "$search_path" ]; then
+                    if [ -f "$search_path/VERSION" ]; then
+                        pkg_arg=$(basename "$search_path")
+                        packages+=( "${pkg_arg}[${search_path#$PWD/}]" )
+                    fi
+                    for file_path in "$search_path"/*/VERSION; do
+                        pkg_arg=$(basename "$(dirname "$file_path")")
+                        packages+=( "${pkg_arg}[${file_path#$PWD/}]" )
+                    done
+                fi
+            done
+            return 0
+        }
+
+        __orb_package_version_cmds() {
+            _values 'command' \
+                '(version-bump)'{patch,minor,major}'[Bump version.]' \
+                '(pre-release-bump)'{alpha,beta,rc}'[Bump the current pre-release.]' \
+                '(release)release[Release the current pre-release.]'
+            return 0
+        }
+
+        __orb_package_version_mods() {
+            _values 'modifier' \
+                '(pre-release-suffix)'{alpha,beta,rc}'[Add pre-release suffix.]'
+
+            return 0
+        }
+
+        __orb_package_version_pkgs() {
+            __orb_package_version_find_packages
+            if [ ${#packages[@]} -eq 0 ]; then
+                return 1
+            fi
+
+            _values 'package' "${packages[*]}"
+            return 0
+        }
+
+        __orb_package_version_args() {
+            _values 'option' \
+                '--push[Push changes after commit and tagging.]' \
+                {-n,--dry-run}'[Displaying what would happing without doing any actual changes.]' \
+                {-q,--quiet}"[Don't report anything but errors, remove package name prefix in version output.]" \
+                {-s,--silent}'[Total silence, rely solely on exit code.]'
+            return 0
+        }
+
+        _arguments -C \
+            '(--*)'{--push,--push}'[Push changes after commit and tagging.]' \
+            '(- *)'{-n,--dry-run}'[Displaying what would happing without doing any actual changes.]' \
+            '(- *)'{-q,--quiet}"[Don't report anything but errors, remove package name prefix in version output.]" \
+            '(- *)'{-s,--silent}'[Total silence, rely solely on exit code.]' \
+            '1:package-version->cmds' \
+            '2:cmd:->cmds' \
+            '3:mod:->mods' \
+            '4:pkg:->pkgs' \
+            '*:: :->args' \
+        && ret=0
+
+        case $state in
+            this|cmds)
+                [[ ${line[CURRENT-1]} == '-'* ]] && ret=0 && return 0
+                __orb_package_version_cmds && \
+                __orb_package_version_pkgs || true && \
+                ret=0
+                ;;
+            mods)
+                [[ ${line[CURRENT-1]} == '-'* ]] && ret=0 && return 0
+                case ${line[CURRENT-1]} in
+                    major|minor|patch)
+                        __orb_package_version_mods && \
+                        __orb_package_version_pkgs || true && \
+                        ret=0
+                        ;;
+                    alpha|beta|rc)
+                        __orb_package_version_args && \
+                        __orb_package_version_pkgs || true && \
+                        ret=0
+                        ;;
+                esac
+                ;;
+            pkgs)
+                __orb_package_version_pkgs || \
+                __orb_package_version_args && \
+                ret=0
+                ;;
+            args)
+                __orb_package_version_args && \
+                ret=0
+                ;;
+
+        esac
+
+        return 0
+    }
+fi
