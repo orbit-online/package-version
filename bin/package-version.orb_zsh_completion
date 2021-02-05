@@ -97,16 +97,16 @@ if [ -n "$_ORB_ZSH_COMPLETION" ]; then
             '*:: :->args' \
         && ret=0
 
+        [[ ${line[CURRENT-1]} == '-'* ]] && ret=0 && return 0
+
         case $state in
             this|cmds)
-                [[ ${line[CURRENT-1]} == '-'* ]] && ret=0 && return 0
                 __orb_package_version_cmds && \
                 __orb_package_version_pkgs || true && \
                 ret=0
                 ;;
             mods)
-                [[ ${line[CURRENT-1]} == '-'* ]] && ret=0 && return 0
-                case ${line[CURRENT-1]} in
+                case ${words[3]} in
                     major|minor|patch)
                         __orb_package_version_mods && \
                         __orb_package_version_pkgs || true && \
