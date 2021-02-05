@@ -292,7 +292,7 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
                     set_version_file "$search_path/$PACKAGE/VERSION"
                     package_name="$PACKAGE"
                     break
-                elif [[ "$(dirname "$search_path")" == "$PACKAGE" ]]; then
+                elif [[ "$(basename "$search_path")" == "$PACKAGE" ]]; then
                     set_version_file "$search_path/VERSION"
                     package_name="$PACKAGE"
                     break
@@ -337,15 +337,6 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
         new_pre_release_name='rc'
     fi
 
-    if ! $__dry_run && [[ -n $(git diff -- "$version_path") ]]; then
-        ! $__silent && printf -- 'The VERSION file of the %s package has uncomitted changes,\nplease commit them or reset the changes and try again.\n' "$package_name" >&2
-        return 76 # Error in protocol
-    fi
-    if ! $__dry_run && [[ -n $(git diff --staged) ]]; then
-        ! $__silent && printf -- 'There are staged changes in the git working copy, please unstage the changes and try again.\n' >&2
-        return 76 # Error in protocol
-    fi
-
     local current_major current_minor current_patch current_pre_release
     current_major=$(grep -oP '^\K(\d+)' < "$version_path")
     current_minor=$(grep -oP '^\d+\.\K(\d+)' < "$version_path")
@@ -388,6 +379,15 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
         ! $__silent && ! $__quiet && printf -- '%s: ' "$package_name" >&2
         printf -- '%s\n' "$current_version"
         return 0
+    fi
+
+    if ! $__dry_run && [[ -n $(git diff -- "$version_path") ]]; then
+        ! $__silent && printf -- 'The VERSION file of the %s package has uncomitted changes,\nplease commit them or reset the changes and try again.\n' "$package_name" >&2
+        return 76 # Error in protocol
+    fi
+    if ! $__dry_run && [[ -n $(git diff --staged) ]]; then
+        ! $__silent && printf -- 'There are staged changes in the git working copy, please unstage the changes and try again.\n' >&2
+        return 76 # Error in protocol
     fi
 
     local new_version
