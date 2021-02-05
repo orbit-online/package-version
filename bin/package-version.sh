@@ -292,7 +292,7 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
                     set_version_file "$search_path/$PACKAGE/VERSION"
                     package_name="$PACKAGE"
                     break
-                elif [[ "$(basename "$search_path")" == "$PACKAGE" ]]; then
+                elif [[ "$(basename "$search_path")" == "$PACKAGE" ]] && [ -f "$search_path/VERSION" ]; then
                     set_version_file "$search_path/VERSION"
                     package_name="$PACKAGE"
                     break
@@ -312,6 +312,10 @@ declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
                 else
                     package_name="$(basename "$search_path")"
                 fi
+                break
+            elif [[ -d "$search_path" && -f "$search_path/$(basename "$PROJECT_PATH")/VERSION" ]]; then
+                set_version_file "$search_path/$(basename "$PROJECT_PATH")/VERSION"
+                package_name="$(basename "$PROJECT_PATH")"
                 break
             fi
         done
