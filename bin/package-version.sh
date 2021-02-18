@@ -33,6 +33,7 @@ if [ ! -d "$PROJECT_PATH" ]; then
 ' "$PROJECT_PATH" >&2
     exit 78 # Configuration error
 fi
+PROJECT_NAME="$(basename "$PROJECT_PATH")"
 
 package-version() {
     DOC="Utility to guide semver versioning of software packages.
@@ -44,12 +45,14 @@ Usage:
   package-version [options] [PACKAGE]
 
 Options:
-  --push          Push changes after commit and tagging.
   -n --dry-run    Displaying what would happen without doing any actual changes,
                   bypassing dirty checks as well.
   -q --quiet      Don't report anything but errors
                   and remove the package name prefix when displaying the current version.
   -s --silent     Total silence, rely solely on exit code
+  --list          List packages.
+  --push          Push changes after commit and tagging.
+  --version       The current version of this tool.
 
 Commands:
   major           Bump the package to the next major version.
@@ -187,30 +190,35 @@ eval "var_$1+=($value)"; else eval "var_$1=$value"; fi; return 0; fi; done
 return 1; }; stdout() { printf -- "cat <<'EOM'\n%s\nEOM\n" "$1"; }; stderr() {
 printf -- "cat <<'EOM' >&2\n%s\nEOM\n" "$1"; }; error() {
 [[ -n $1 ]] && stderr "$1"; stderr "$usage"; _return 1; }; _return() {
-printf -- "exit %d\n" "$1"; exit "$1"; }; set -e; trimmed_doc=${DOC:0:2722}
-usage=${DOC:58:218}; digest=411dd; shorts=(-n -q '' -s)
-longs=(--dry-run --quiet --push --silent); argcounts=(0 0 0 0); node_0(){
-switch __dry_run 0; }; node_1(){ switch __quiet 1; }; node_2(){ switch __push 2
-}; node_3(){ switch __silent 3; }; node_4(){ value PACKAGE a; }; node_5(){
-_command major; }; node_6(){ _command minor; }; node_7(){ _command patch; }
-node_8(){ _command alpha; }; node_9(){ _command beta; }; node_10(){ _command rc
-}; node_11(){ _command release; }; node_12(){ optional 0 1 2 3; }; node_13(){
-optional 12; }; node_14(){ either 5 6 7; }; node_15(){ required 14; }
-node_16(){ either 8 9 10; }; node_17(){ optional 16; }; node_18(){ optional 4; }
-node_19(){ required 13 15 17 18; }; node_20(){ required 16; }; node_21(){
-required 13 20 18; }; node_22(){ required 13 11 18; }; node_23(){ required 13 18
-}; node_24(){ either 19 21 22 23; }; node_25(){ required 24; }
-cat <<<' docopt_exit() { [[ -n $1 ]] && printf "%s\n" "$1" >&2
-printf "%s\n" "${DOC:58:218}" >&2; exit 1; }'; unset var___dry_run var___quiet \
-var___push var___silent var_PACKAGE var_major var_minor var_patch var_alpha \
-var_beta var_rc var_release; parse 25 "$@"; local prefix=${DOCOPT_PREFIX:-''}
-unset "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
-"${prefix}__silent" "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
-"${prefix}patch" "${prefix}alpha" "${prefix}beta" "${prefix}rc" \
-"${prefix}release"; eval "${prefix}"'__dry_run=${var___dry_run:-false}'
+printf -- "exit %d\n" "$1"; exit "$1"; }; set -e; trimmed_doc=${DOC:0:2807}
+usage=${DOC:58:218}; digest=4c8b5; shorts=(-q -n '' -s '' '')
+longs=(--quiet --dry-run --push --silent --version --list)
+argcounts=(0 0 0 0 0 0); node_0(){ switch __quiet 0; }; node_1(){
+switch __dry_run 1; }; node_2(){ switch __push 2; }; node_3(){ switch __silent 3
+}; node_4(){ switch __version 4; }; node_5(){ switch __list 5; }; node_6(){
+value PACKAGE a; }; node_7(){ _command major; }; node_8(){ _command minor; }
+node_9(){ _command patch; }; node_10(){ _command alpha; }; node_11(){
+_command beta; }; node_12(){ _command rc; }; node_13(){ _command release; }
+node_14(){ optional 0 1 2 3 4 5; }; node_15(){ optional 14; }; node_16(){
+either 7 8 9; }; node_17(){ required 16; }; node_18(){ either 10 11 12; }
+node_19(){ optional 18; }; node_20(){ optional 6; }; node_21(){
+required 15 17 19 20; }; node_22(){ required 18; }; node_23(){ required 15 22 20
+}; node_24(){ required 15 13 20; }; node_25(){ required 15 20; }; node_26(){
+either 21 23 24 25; }; node_27(){ required 26; }; cat <<<' docopt_exit() {
+[[ -n $1 ]] && printf "%s\n" "$1" >&2; printf "%s\n" "${DOC:58:218}" >&2; exit 1
+}'; unset var___quiet var___dry_run var___push var___silent var___version \
+var___list var_PACKAGE var_major var_minor var_patch var_alpha var_beta var_rc \
+var_release; parse 27 "$@"; local prefix=${DOCOPT_PREFIX:-''}
+unset "${prefix}__quiet" "${prefix}__dry_run" "${prefix}__push" \
+"${prefix}__silent" "${prefix}__version" "${prefix}__list" "${prefix}PACKAGE" \
+"${prefix}major" "${prefix}minor" "${prefix}patch" "${prefix}alpha" \
+"${prefix}beta" "${prefix}rc" "${prefix}release"
 eval "${prefix}"'__quiet=${var___quiet:-false}'
+eval "${prefix}"'__dry_run=${var___dry_run:-false}'
 eval "${prefix}"'__push=${var___push:-false}'
 eval "${prefix}"'__silent=${var___silent:-false}'
+eval "${prefix}"'__version=${var___version:-false}'
+eval "${prefix}"'__list=${var___list:-false}'
 eval "${prefix}"'PACKAGE=${var_PACKAGE:-}'
 eval "${prefix}"'major=${var_major:-false}'
 eval "${prefix}"'minor=${var_minor:-false}'
@@ -219,114 +227,132 @@ eval "${prefix}"'alpha=${var_alpha:-false}'
 eval "${prefix}"'beta=${var_beta:-false}'; eval "${prefix}"'rc=${var_rc:-false}'
 eval "${prefix}"'release=${var_release:-false}'; local docopt_i=1
 [[ $BASH_VERSION =~ ^4.3 ]] && docopt_i=2; for ((;docopt_i>0;docopt_i--)); do
-declare -p "${prefix}__dry_run" "${prefix}__quiet" "${prefix}__push" \
-"${prefix}__silent" "${prefix}PACKAGE" "${prefix}major" "${prefix}minor" \
-"${prefix}patch" "${prefix}alpha" "${prefix}beta" "${prefix}rc" \
-"${prefix}release"; done; }
+declare -p "${prefix}__quiet" "${prefix}__dry_run" "${prefix}__push" \
+"${prefix}__silent" "${prefix}__version" "${prefix}__list" "${prefix}PACKAGE" \
+"${prefix}major" "${prefix}minor" "${prefix}patch" "${prefix}alpha" \
+"${prefix}beta" "${prefix}rc" "${prefix}release"; done; }
 # docopt parser above, complete command for generating this parser is `docopt.sh package-version.sh`
 
     eval "$(docopt "$@")"
 
     # shellcheck disable=SC2154
-    if $__dry_run; then
+    if $__version; then
+        printf -- 'v__VERSION__\n'
+        return 0
+    elif $__dry_run; then
         printf -- 'WARNING: RUNNING IN DRY-RUN MODE, NO CHANGES WILL BE MADE\n' >&2
     fi
 
-    local search_paths=()
-
+    local search_path default_package_name default_package_path
+    local -a search_paths=()
     resolve_search_paths() {
         if [ -n "$PACKAGE_VERSION_PATH" ]; then
             read_pkg_version_paths
         else
+            default_package_name="$PROJECT_NAME"
             search_paths+=( "$PROJECT_PATH" )
+            [ -f "$PROJECT_PATH/VERSION" ] && \
+                default_package_path="$PROJECT_PATH"
             [ -d "$PROJECT_PATH/package" ] && search_paths+=( "$PROJECT_PATH/package" )
+            [[ -z "$default_package_path" && -f "$PROJECT_PATH/package/VERSION" ]] && \
+                default_package_path="$PROJECT_PATH/package"
             [ -d "$PROJECT_PATH/packages" ] && search_paths+=( "$PROJECT_PATH/packages" )
+            [[ -z "$default_package_path" && -f "$PROJECT_PATH/packages/$PROJECT_NAME/VERSION" ]] && \
+                default_package_path="$PROJECT_PATH/packages/$PROJECT_NAME"
         fi
         return 0
     }
 
     read_pkg_version_paths() {
-        local path
-        while IFS= read -r path; do
-            [ -z "$path" ] && continue
-            if [ ! -e "$path" ]; then
+        while IFS= read -r search_path; do
+            [ -z "$search_path" ] && continue
+            if [ ! -e "$search_path" ]; then
                 # shellcheck disable=SC2154
-                ! $__silent && printf -- 'Invalid search path defined in PACKAGE_VERSION_PATH environment variable.\n- %s\n' "$path" >&2
+                ! $__silent && printf -- 'Invalid search path defined in PACKAGE_VERSION_PATH environment variable.\n- %s\n' "$search_path" >&2
                 return 78 # Configuration ERROR
             fi
-            search_paths+=( "$path" )
+
+            if [ -z "$default_package_name" ]; then
+                if [[ -f "$search_path" && "$(basename "$search_path")" == 'VERSION' ]]; then
+                    default_package_path=$(dirname "$search_path")
+                    default_package_name="$(basename "$default_package_path")"
+                    [[ "$default_package_name" == 'package' ]] && default_package_name="$PROJECT_NAME"
+                elif [[ -d "$search_path" && -f "$search_path/VERSION" ]]; then
+                    default_package_path="$search_path"
+                    default_package_name="$(basename "$default_package_path")"
+                    [[ "$default_package_name" == 'package' ]] && default_package_name="$PROJECT_NAME"
+                elif [ -f "$search_path/$PROJECT_NAME/VERSION" ]; then
+                    default_package_path="$search_path/$PROJECT_NAME"
+                    default_package_name="$PROJECT_NAME"
+                fi
+            fi
+
+            search_paths+=( "$search_path" )
         done <<< "$(echo -e "${PACKAGE_VERSION_PATH//:/"\n"}")"
         return 0
     }
 
+    local package_name search_path
+    local -a package_paths=() package_names=()
+    resolve_package_paths() {
+        while IFS= read -rd $'\0' search_path; do
+            package_path="$(dirname "$search_path")"
+            package_name="$(basename "$package_path")"
+            [[ "$package_name" == 'package' ]] && package_name="$default_package_name"
+            package_paths+=( "$package_path" )
+            package_names+=( "$package_name" )
+        done < <(find "${search_paths[@]}" -maxdepth 2 -type f -name 'VERSION' -print0 | sort -zu)
+    }
+
+    resolve_search_paths
+    resolve_package_paths
+
+    # shellcheck disable=SC2154
+    if $__list; then
+        printf -- '%s\n' "${package_paths[@]}"
+        return 0
+    fi
+
     local version_path
     set_version_file() {
-        local path=$1
-        if [ -f "$path" ]; then
-            if [[ "$(basename "$path")" != 'VERSION' ]]; then
-                ! $__silent && printf -- 'Version files must be called VERSION, got\n- %s\n' "$path" >&2
+        version_path=$1
+        if [ -f "$version_path" ]; then
+            if [[ "$(basename "$version_path")" != 'VERSION' ]]; then
+                ! $__silent && printf -- 'Version files must be called VERSION, got\n- %s\n' "$version_path" >&2
                 return 78 # Configuration ERROR
             fi
-            version_path="$path"
         else
             ! $__silent && printf -- 'No VERSION file was found in the directory
 - %s
-' "$path" >&2
+' "$version_path" >&2
             return 66 # Cannot open input
         fi
     }
 
-    resolve_search_paths
-
-    local package_name search_path
-    if [ -n "$PACKAGE" ]; then
-        for search_path in "${search_paths[@]}"; do
-            if [ -f "$search_path" ]; then
-                if [[ "$(basename "$(dirname "$search_path")")" == "$PACKAGE" ]]; then
-                    set_version_file "$search_path"
-                    package_name="$PACKAGE"
-                    break
-                fi
-            elif [ -d "$search_path" ]; then
-                if [ -d "$search_path/$PACKAGE" ]; then
-                    set_version_file "$search_path/$PACKAGE/VERSION"
-                    package_name="$PACKAGE"
-                    break
-                elif [[ "$(basename "$search_path")" == "$PACKAGE" ]] && [ -f "$search_path/VERSION" ]; then
-                    set_version_file "$search_path/VERSION"
-                    package_name="$PACKAGE"
-                    break
-                fi
-            fi
+    local i
+    local -a uniq_package_names=()
+    mapfile -t uniq_package_names < <(printf -- '%s\n' "${package_names[@]}" | sort -u)
+    if  [ ! "${#package_names[@]}" -eq "${#uniq_package_names[@]}" ]; then
+        printf -- 'Non unique package names.\n' >&2
+        for (( i=0; i<${#package_names[@]};i++ )); do
+            package_name="${package_names[i]}"
+            package_path=${package_paths[i]}
+            printf -- '%s    - %s\n' "$package_name" "$package_path" >&2
         done
-    else
-        for search_path in "${search_paths[@]}"; do
-            if [ -f "$search_path" ]; then
-                set_version_file "$search_path"
-                package_name="$(basename "$(dirname "$search_path")")"
-                break
-            elif [[ -d "$search_path" && -f "$search_path/VERSION" ]]; then
-                set_version_file "$search_path/VERSION"
-                if [[ "$(basename "$search_path")" == 'package' ]]; then
-                    package_name="$(basename "$(dirname "$search_path")")"
-                else
-                    package_name="$(basename "$search_path")"
-                fi
-                break
-            elif [[ -d "$search_path" && -f "$search_path/$(basename "$PROJECT_PATH")/VERSION" ]]; then
-                set_version_file "$search_path/$(basename "$PROJECT_PATH")/VERSION"
-                package_name="$(basename "$PROJECT_PATH")"
-                break
-            fi
-        done
+        return 1
     fi
 
-    if [ -z "$version_path" ]; then
-        if [ -n "$package_name" ]; then
-            ! $__silent && printf -- 'No VERSION file found for package "%s", searched in\n' "$package_name" >&2
-        else
-            ! $__silent && printf -- 'No VERSION file found, searched in\n' >&2
+    local search_package=${PACKAGE:-$default_package_name}
+    for (( i=0; i<${#package_names[@]}; i++)); do
+        package_name=${package_names[i]}
+        if [[ "$search_package" == "$package_name" ]]; then
+            version_path="${package_paths[i]}/VERSION"
+            break
         fi
+    done
+
+    if [ -z "$version_path" ]; then
+        ! $__silent && printf -- 'No VERSION file found for package "%s", searched in\n' "$search_package" >&2
         ! $__silent && printf -- '%s\n' "${search_paths[@]}" >&2
         return 66 # Cannot open input
     fi
